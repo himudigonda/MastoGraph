@@ -3,3 +3,6 @@ config.py
 data
 output.out
 dump.sh
+degree_distribution.png
+betweenness_visualization.png
+pagerank_visualization.png

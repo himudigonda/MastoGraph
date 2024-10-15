@@ -4,11 +4,10 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 from community import community_louvain
 from collections import Counter
-from matplotlib.cm import ScalarMappable
-from matplotlib.colors import Normalize
-import matplotlib.pyplot as plt
-import networkx as nx
 import seaborn as sns
+
+# Set global plot style
+plt.style.use('seaborn-v0_8-dark-palette')
 
 def calculate_degree_distribution(G):
     degrees = [d for n, d in G.degree()]
@@ -16,12 +15,13 @@ def calculate_degree_distribution(G):
     x, y = zip(*sorted(degree_counts.items()))
 
     plt.figure(figsize=(10, 6))
-    plt.loglog(x, y, 'b.')
-    plt.title("Degree Distribution (log-log scale)")
-    plt.xlabel("Degree")
-    plt.ylabel("Count")
-    plt.savefig("degree_distribution.png")
-    plt.close()
+    plt.loglog(x, y, 'b.', markersize=8)
+    plt.title("Degree Distribution (log-log scale)", fontsize=16)
+    plt.xlabel("Degree", fontsize=14)
+    plt.ylabel("Count", fontsize=14)
+    plt.grid(True, which="both", ls="--", linewidth=0.5)
+    plt.savefig("degree_distribution.png", bbox_inches='tight')
+    plt.show()
 
 def calculate_additional_measures(G):
     print("Calculating additional network measures...")
@@ -41,28 +41,32 @@ def analyze_average_friends(G):
     degrees = [d for n, d in G.degree()]
     return sum(degrees) / len(degrees)
 
-
-
 def visualize_network(G, measure, title, filename):
-    plt.figure(figsize=(25, 25))  # Increase the figure size for better visibility
-    pos = nx.spring_layout(G, k=0.2)  # Adjust k for better spacing
+    plt.figure(figsize=(10, 6))  # Increase figure size for better visibility
+    pos = nx.spring_layout(G, k=0.15, iterations=20)  # Adjust layout for better spacing
 
-    # Normalize the measure for node sizes
+    # Normalize the measure for node sizes and colors
     norm = Normalize(vmin=min(measure.values()), vmax=max(measure.values()))
-    node_sizes = [norm(measure[node]) * 1000 for node in G.nodes()]  # Scale node sizes
+    node_sizes = [norm(measure[node]) * 2000 for node in G.nodes()]  # Scale node sizes
+    node_colors = [measure[node] for node in G.nodes()]  # Node color based on measure
 
-    nodes = nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color='blue', alpha=0.6)
+    # Draw nodes with size and color based on the measure
+    nodes = nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_colors, cmap='coolwarm', alpha=0.85)
     edges = nx.draw_networkx_edges(G, pos, alpha=0.3)
 
     # Add labels for larger nodes
-    labels = {node: node for node, size in zip(G.nodes(), node_sizes) if size > 200}
+    labels = {node: node for node, size in zip(G.nodes(), node_sizes) if size > 500}
     nx.draw_networkx_labels(G, pos, labels, font_size=8, font_color='black')
 
-    plt.title(f"{title} Visualization")
+    # Add color bar
+    sm = ScalarMappable(cmap='coolwarm', norm=norm)
+    sm.set_array(node_colors)  # Map the node colors to the ScalarMappable
+    plt.colorbar(sm, ax=plt.gca())  # Pass the current Axes to the colorbar
+
+    plt.title(f"{title} Visualization", fontsize=20)
     plt.axis('off')
-    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)  # Adjust layout manually
-    plt.savefig(filename)
-    plt.close()
+    plt.savefig(filename, bbox_inches='tight')
+    plt.show()
 
 def detect_communities(G):
     partition = community_louvain.best_partition(G)
