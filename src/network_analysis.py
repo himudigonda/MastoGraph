@@ -37,9 +37,28 @@ def calculate_additional_measures(G):
         "eigenvector": eigenvector
     }
 
-def analyze_average_friends(G):
+def analyze_local_and_global_friends(G):
+    # Global average (already implemented)
     degrees = [d for n, d in G.degree()]
-    return sum(degrees) / len(degrees)
+    global_average_friends = sum(degrees) / len(degrees)
+
+    # Local average (1-hop friends) for each node
+    local_averages = {}
+    for node in G.nodes():
+        neighbors = list(G.neighbors(node))
+        local_degrees = [G.degree(neighbor) for neighbor in neighbors]  # Degree of 1-hop neighbors
+        if len(local_degrees) > 0:
+            local_averages[node] = sum(local_degrees) / len(local_degrees)  # Average of 1-hop friends
+        else:
+            local_averages[node] = 0  # No neighbors means no 1-hop friends
+
+    # Calculate overall local average
+    overall_local_average = sum(local_averages.values()) / len(local_averages)
+
+    print(f"Global Average Friends: {global_average_friends}")
+    print(f"Overall Local Average (1-hop) Friends: {overall_local_average}")
+
+    return global_average_friends, overall_local_average
 
 def visualize_network(G, measure, title, filename):
     plt.figure(figsize=(10, 6))  # Increase figure size for better visibility
@@ -67,6 +86,7 @@ def visualize_network(G, measure, title, filename):
     plt.axis('off')
     plt.savefig(filename, bbox_inches='tight')
     # plt.show()
+
 def detect_communities(G):
     partition = community_louvain.best_partition(G)
     modularity = community_louvain.modularity(partition, G)

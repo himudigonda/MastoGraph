@@ -22,7 +22,6 @@ def main(args):
         if info_network.number_of_nodes() > 0:
             info_network, toxic_count, total_count = classification.classify_toxicity(info_network)
             print(f">>> Classification complete. {toxic_count}/{total_count} nodes classified as toxic.")
-
         else:
             print("[-] Information diffusion network is empty. Skipping classification.")
 
@@ -30,9 +29,9 @@ def main(args):
     if friend_network.number_of_nodes() > 0:
         network_analysis.calculate_degree_distribution(friend_network)
         measures = network_analysis.calculate_additional_measures(friend_network)
-        avg_friends = network_analysis.analyze_average_friends(friend_network)
-        print(f">>> Network measures:", measures)
-        print(f">>> Average friends:", avg_friends)
+        global_avg, local_avg = network_analysis.analyze_local_and_global_friends(friend_network)
+        print(f">>> Global Average Friends: {global_avg}")
+        print(f">>> Local Average (1-hop) Friends: {local_avg}")
 
         network_analysis.visualize_network(friend_network, measures['pagerank'], "PageRank", "pagerank_visualization.png")
         network_analysis.visualize_network(friend_network, measures['betweenness'], "Betweenness Centrality", "betweenness_visualization.png")
@@ -45,7 +44,6 @@ def main(args):
         print(f">>> PageRank: {measures['pagerank']}")
         print(f">>> Betweenness Centrality: {measures['betweenness']}")
         print(f">>> Eigenvector Centrality: {measures['eigenvector']}")
-        print(f">>> Average Friends: {avg_friends}")
         print(f">>> Number of Communities: {len(set(partition.values()))}")
         print(f">>> Modularity: {modularity:.4f}")
     else:
