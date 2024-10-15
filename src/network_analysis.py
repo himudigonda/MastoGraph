@@ -21,7 +21,7 @@ def calculate_degree_distribution(G):
     plt.ylabel("Count", fontsize=14)
     plt.grid(True, which="both", ls="--", linewidth=0.5)
     plt.savefig("degree_distribution.png", bbox_inches='tight')
-    plt.show()
+    # plt.show()
 
 def calculate_additional_measures(G):
     print("Calculating additional network measures...")
@@ -43,19 +43,19 @@ def analyze_average_friends(G):
 
 def visualize_network(G, measure, title, filename):
     plt.figure(figsize=(10, 6))  # Increase figure size for better visibility
-    pos = nx.spring_layout(G, k=0.15, iterations=20)  # Adjust layout for better spacing
+    pos = nx.spring_layout(G, k=0.15, iterations=100)  # Adjust layout for better spacing
 
     # Normalize the measure for node sizes and colors
     norm = Normalize(vmin=min(measure.values()), vmax=max(measure.values()))
-    node_sizes = [norm(measure[node]) * 2000 for node in G.nodes()]  # Scale node sizes
+    node_sizes = [norm(measure[node]) * 1500 for node in G.nodes()]  # Scale node sizes
     node_colors = [measure[node] for node in G.nodes()]  # Node color based on measure
 
     # Draw nodes with size and color based on the measure
     nodes = nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_colors, cmap='coolwarm', alpha=0.85)
     edges = nx.draw_networkx_edges(G, pos, alpha=0.3)
 
-    # Add labels for larger nodes
-    labels = {node: node for node, size in zip(G.nodes(), node_sizes) if size > 500}
+    # Add labels: Display usernames instead of IDs if available
+    labels = {node: G.nodes[node].get('username', node) for node, size in zip(G.nodes(), node_sizes) if size > 500}
     nx.draw_networkx_labels(G, pos, labels, font_size=8, font_color='black')
 
     # Add color bar
@@ -66,8 +66,7 @@ def visualize_network(G, measure, title, filename):
     plt.title(f"{title} Visualization", fontsize=20)
     plt.axis('off')
     plt.savefig(filename, bbox_inches='tight')
-    plt.show()
-
+    # plt.show()
 def detect_communities(G):
     partition = community_louvain.best_partition(G)
     modularity = community_louvain.modularity(partition, G)
