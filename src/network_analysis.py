@@ -1,3 +1,7 @@
+import matplotlib.pyplot as plt
+import networkx as nx
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize
 from community import community_louvain
 from collections import Counter
 from matplotlib.cm import ScalarMappable
@@ -34,52 +38,33 @@ def calculate_additional_measures(G):
     }
 
 def analyze_average_friends(G):
-    local_avg = sum(dict(G.degree()).values()) / len(G)
-    global_avg = nx.average_degree_connectivity(G)
-    return {"local_avg": local_avg, "global_avg": global_avg}
+    degrees = [d for n, d in G.degree()]
+    return sum(degrees) / len(degrees)
+
+
 
 def visualize_network(G, measure, title, filename):
-    plt.figure(figsize=(12, 8))
-    pos = nx.spring_layout(G)
-    nx.draw(G, pos, node_size=20, node_color='lightblue', with_labels=False)
+    plt.figure(figsize=(25, 25))  # Increase the figure size for better visibility
+    pos = nx.spring_layout(G, k=0.2)  # Adjust k for better spacing
 
-    node_colors = [measure[node] for node in G.nodes()]
-    norm = Normalize(vmin=min(node_colors), vmax=max(node_colors))
-    sm = ScalarMappable(cmap=plt.cm.viridis, norm=norm)
-    sm.set_array([])
+    # Normalize the measure for node sizes
+    norm = Normalize(vmin=min(measure.values()), vmax=max(measure.values()))
+    node_sizes = [norm(measure[node]) * 1000 for node in G.nodes()]  # Scale node sizes
 
-    # Normalize node colors
-    normalized_colors = [norm(color) for color in node_colors]
+    nodes = nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color='blue', alpha=0.6)
+    edges = nx.draw_networkx_edges(G, pos, alpha=0.3)
 
-    nodes = nx.draw_networkx_nodes(G, pos, node_size=50, node_color=node_colors, cmap=plt.cm.viridis)
+    # Add labels for larger nodes
+    labels = {node: node for node, size in zip(G.nodes(), node_sizes) if size > 200}
+    nx.draw_networkx_labels(G, pos, labels, font_size=8, font_color='black')
 
-    # Create colorbar
-    plt.colorbar(sm, ax=plt.gca(), label=title)
     plt.title(f"{title} Visualization")
     plt.axis('off')
     plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)  # Adjust layout manually
     plt.savefig(filename)
     plt.close()
 
-
 def detect_communities(G):
     partition = community_louvain.best_partition(G)
     modularity = community_louvain.modularity(partition, G)
     return partition, modularity
-
-# Example usage
-if __name__ == "__main__":
-    # Assume G is your network
-    G = nx.karate_club_graph()  # Example graph, replace with your actual network
-
-    calculate_degree_distribution(G)
-    measures = calculate_additional_measures(G)
-    avg_friends = analyze_average_friends(G)
-
-    print("Average friends:", avg_friends)
-
-    visualize_network(G, measures['pagerank'], "PageRank", "pagerank_visualization.png")
-    visualize_network(G, measures['betweenness'], "Betweenness Centrality", "betweenness_visualization.png")
-
-    partition, modularity = detect_communities(G)
-    print(f"Detected {len(set(partition.values()))} communities with modularity {modularity:.4f}")

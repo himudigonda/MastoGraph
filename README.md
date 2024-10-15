@@ -1,170 +1,170 @@
 # Mastodon Analysis Project
 
-This project collects, processes, and analyzes data from Mastodon to perform sentiment analysis and network analysis. The project is structured to collect posts based on specific keywords, process the data, classify the sentiment, and construct a network for further analysis.
+## Overview
+
+This project demonstrates the collection, processing, and analysis of social media data from the Mastodon platform. The project aims to classify toxic content, construct social networks, and perform network analysis using various machine learning models and graph-based techniques.
+
+Key aspects include:
+- **Social Media Data Crawling** using the Mastodon API.
+- **Natural Language Processing (NLP)** techniques for sentiment and toxicity analysis.
+- **Graph Theory** and **Network Analysis** for exploring social interactions and content propagation.
+- **Machine Learning Models** such as Llama3-8B for text classification.
+
+## Technologies Used
+
+- **Mastodon API**: For collecting real-time social media data using keyword-based and user-based data scraping.
+- **Python**: The core programming language for implementing all data collection, processing, classification, and analysis functionalities.
+- **NetworkX**: Used for constructing and analyzing networks of interactions between users and posts.
+- **LangChain & OllamaLLM (Llama3-8B)**: Large Language Models used for classifying content based on toxicity.
+- **TextBlob**: A natural language processing library used for sentiment analysis.
+- **Matplotlib & Seaborn**: For visualizing network properties, including degree distribution, PageRank, and community detection.
+- **Pandas**: For data processing and manipulation.
+- **Community-Louvain**: Used for community detection within networks.
+
+## Project Components
+
+### 1. **Data Collection**
+
+The project collects data from Mastodon based on:
+- **Keyword-based search**: Collects posts that match certain keywords relevant to the topic of "Twitter vs. Mastodon" (e.g., `#TwitterVsMastodon`, `#MastodonIsBetter`).
+- **User-based search**: Collects data on users, their followers, and followees.
+
+**Technologies**: Mastodon API, Mastodon.py
+
+**Files**: `data_collection.py`, `config.py`
+
+### 2. **Data Processing**
+
+Raw data collected from Mastodon is cleaned and processed to extract relevant features such as:
+- Cleaning HTML tags from posts.
+- Extracting user details.
+- Calculating sentiment scores using TextBlob.
+
+**Technologies**: BeautifulSoup, TextBlob, Pandas
+
+**Files**: `data_processing.py`
+
+### 3. **Network Construction**
+
+We create two types of networks based on the processed data:
+- **Information Diffusion Network**: A directed network where nodes represent posts and edges indicate interactions (e.g., replies, mentions).
+- **Friendship Network**: An undirected network of users connected by follower-followee relationships.
+
+**Technologies**: NetworkX
+
+**Files**: `network_construction.py`
+
+### 4. **Toxicity Classification**
+
+The **Llama3-8B** model from OllamaLLM is used to classify posts as **toxic** or **non-toxic**. Toxicity is determined based on abusive language or harmful content within posts. Each post in the Information Diffusion Network is assigned a toxicity score on a scale from 0 to 1.
+
+**Technologies**: LangChain, OllamaLLM, Llama3-8B
+
+**Files**: `classification.py`
+
+### 5. **Network Analysis**
+
+After constructing the networks, various **network measures** are calculated, including:
+- **Degree Distribution**: A histogram of the node degrees.
+- **PageRank**: Ranking of nodes based on their influence within the network.
+- **Clustering Coefficient**: Measures how tightly connected a node's neighborhood is.
+- **Betweenness Centrality**: A measure of the node's influence on information flow.
+- **Community Detection**: Using the Louvain method to detect communities within the network.
+
+**Technologies**: NetworkX, Matplotlib, Seaborn, Community-Louvain
+
+**Files**: `network_analysis.py`
+
+### 6. **Visualization**
+
+The network measures and community structures are visualized using Matplotlib and Seaborn:
+- **Degree Distribution** is visualized in a log-log plot.
+- **PageRank and Betweenness Centrality** visualizations show the importance of nodes in the network.
+- **Community Detection** visualizes clusters of closely connected nodes.
+
+**Technologies**: Matplotlib, Seaborn
 
 ## Project Structure
 
 ```
 mastodon_analysis_project/
-├── __pycache__/
-├── .gitignore
-├── config.py
+├── README.md               # Project overview and instructions
+├── config.py               # Configuration file for API keys and data collection parameters
 ├── data/
-│   ├── processed/
-│   │   └── processed_posts.json
-│   └── raw/
-│       ├── keyword_posts.json
-│       └── user_data.json
-├── main.py
-├── output.out
-├── requirements.txt
-├── run.sh
+│   ├── processed/          # Processed data files
+│   └── raw/                # Raw data files
+├── main.py                 # Main script to run data collection, classification, and analysis
+├── requirements.txt        # Python dependencies
+├── run.sh                  # Shell script to run the project
 └── src/
-    ├── __pycache__/
-    ├── classification.py
-    ├── data_collection.py
-    ├── data_processing.py
-    ├── network_analysis.py
-    └── network_construction.py
+    ├── classification.py   # Toxicity classification implementation
+    ├── data_collection.py  # Data collection from Mastodon
+    ├── data_processing.py  # Data processing and cleaning
+    ├── network_analysis.py # Network measures and visualization
+    └── network_construction.py  # Network construction for posts and users
 ```
 
-## Setup
+## Setup and Usage
 
-1. **Clone the repository:**
+1. Clone the repository:
+```
+git clone <repository_url>
+cd mastodon_analysis_project
+```
 
-    ```sh
-    git clone <repository_url>
-    cd mastodon_analysis_project
-    ```
+2. Install dependencies:
+```
+pip install -r requirements.txt
+```
 
-2. **Install dependencies:**
+3. Configure the project:
 
-    ```sh
-    pip install -r requirements.txt
-    ```
+Update the config.py file with your Mastodon API credentials, keywords, and user seeds.
 
-3. **Configure the project:**
+```python
+# config.py
+MASTODON_CLIENT_ID = 'your_client_id'
+MASTODON_CLIENT_SECRET = 'your_client_secret'
+MASTODON_ACCESS_TOKEN = 'your_access_token'
+MASTODON_API_BASE_URL = 'https://mastodon.social/'
+```
 
-    Update the
+4. Running the Project
 
-config.py
-
- file with your Mastodon API credentials and other configuration parameters.
-
-## Running the Project
-
-To run the project, execute the
-
-run.sh
-
- script:
-
-```sh
+Run the project using the provided shell script:
+```bash
 sh run.sh
 ```
-
-Alternatively, you can run the
-
-main.py
-
- script directly with the necessary arguments:
-
-```sh
+Alternatively, you can run the main.py script with arguments:
+```bash
 python main.py --collect-data --classify
 ```
 
-## Project Components
+This will:
 
-- **Data Collection:** Collects posts from Mastodon based on specified keywords and users. Implemented in
+- Collect data from Mastodon.
+- Process and classify posts.
+- Construct and analyze the social networks.
 
-data_collection.py
+Results and Insights
 
-.
-- **Data Processing:** Processes the collected data and saves it to a JSON file. Implemented in
+This project results in the creation of two main social networks:
 
-data_processing.py
+- Information Diffusion Network of posts.
+- Friendship Network of users.
 
-.
-- **Classification:** Classifies the sentiment of the posts. Implemented in
+Through toxicity analysis and network measures, the project provides valuable insights into how information spreads on Mastodon and how toxic content may propagate through social networks.
 
-classification.py
+License
 
-.
-- **Network Construction:** Constructs a network based on the processed data. Implemented in
+This project is licensed under the MIT License. See the LICENSE file for more details.
 
-network_construction.py
+Acknowledgements
 
-.
-- **Network Analysis:** Analyzes the constructed network. Implemented in
+- Mastodon.py: For accessing the Mastodon API.
+- LangChain & OllamaLLM: For providing the Llama3-8B model used in toxicity classification.
+- NetworkX: For network construction and analysis.
+- TextBlob: For sentiment analysis.
+- Matplotlib & Seaborn: For visualizations.
 
-network_analysis.py
-
-.
-
-## Configuration
-
-The
-
-config.py
-
- file contains the configuration parameters for the project, including Mastodon API credentials, keywords, and data collection parameters.
-
-```py
-# config.py
-MASTODON_CLIENT_ID = 'your_client_id'
-MASTODON_CLIENT_SECRET
-
- =
-
- 'your_client_secret'
-MASTODON_ACCESS_TOKEN = 'your_access_token'
-MASTODON_API_BASE_URL = 'https://mastodon.social/'
-
-TOPIC = "Your Topic"
-KEYWORDS = ["keyword1", "keyword2", "keyword3"]
-SEED_USERS = ["user1", "user2", "user3"]
-
-MIN_POSTS = 600
-MIN_USERS = 200
-```
-
-## Data
-
-- **Raw Data:** Collected raw data is stored in the
-
-raw
-
- directory.
-- **Processed Data:** Processed data is stored in the
-
-processed
-
- directory.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Acknowledgements
-
-This project uses the following libraries:
-
-- Mastodon.py
-- NetworkX
-- NLTK
-- Pandas
-- Matplotlib
-
-For a full list of dependencies, see the
-
-requirements.txt
-
- file.
-
-## Contact
-
-For any questions or issues, please contact [Your Name](mailto:your.email@example.com).
-
----
-
-This README provides an overview of the project, setup instructions, and details about the various components and their functionalities.
+You can directly copy this markdown-formatted README to your project repository. It covers all the necessary details while showcasing your use of various technologies and concepts.
