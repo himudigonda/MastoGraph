@@ -166,5 +166,3 @@ Acknowledgements
 - NetworkX: For network construction and analysis.
 - TextBlob: For sentiment analysis.
 - Matplotlib & Seaborn: For visualizations.
-
-You can directly copy this markdown-formatted README to your project repository. It covers all the necessary details while showcasing your use of various technologies and concepts.
